@@ -1,13 +1,13 @@
 /*
- * AnimeNuvio provider for Nuvio
+ * AnimeAV provider for Nuvio
  * Flow: Nuvio TMDB ID -> TMDB external_ids (IMDb) -> AnimeAV1 Resolver API
- *       -> AnimeAV1 episode __data.json -> PlayerZilla HLS / Voe HLS
+ *       -> AnimeAV1 episode __data.json -> HLS-Zilla / Voe
  *
  * Runtime: Nuvio-provided fetch. No npm dependencies.
  */
 
-var PROVIDER_NAME = 'AnimeNuvio';
-var TMDB_API_KEY = '56db0ec297530920213e1503706b81ff';
+var PROVIDER_NAME = 'AnimeAV';
+var TMDB_API_KEY = 'YOUR_TMDB_API_KEY';
 var TMDB_BASE = 'https://api.themoviedb.org/3';
 var RESOLVER_BASE = 'https://5ckvjqa72l.apps.bot-hosting.cloud';
 var ANIMEAV1_BASE = 'https://animeav1.com';
@@ -308,12 +308,12 @@ function languageLabel(dub) {
 
 function makeStream(source, resolved, mediaType) {
   var provider = /voe/i.test(source.name) ? 'Voe' : 'PlayerZilla';
-  var quality = provider === 'Voe' ? 'Auto' : '1080p';
+  var quality = provider === 'Voe' ? '720p' : '1080p';
   return {
     name: PROVIDER_NAME,
     title: '',
     url: resolved.url,
-    quality: '📺 ' + provider + ' HLS\n' + quality + ' | WEB-DL | ' +
+    quality: '\n' + quality + ' | WEB-DL | ' +
       (mediaType === 'tv' ? 'Serie' : 'Película') + '\n' + languageLabel(source.dub),
     headers: resolved.headers || {},
     type: 'hls'

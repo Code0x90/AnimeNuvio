@@ -1,4 +1,4 @@
-# AnimeNuvio 1.0.3 — repositorio de plugins para Nuvio
+# AnimeAV 1.0.4 — repositorio de plugins para Nuvio
 
 Repositorio Nuvio con un proveedor: **AnimeAV1**.
 
@@ -7,7 +7,7 @@ Repositorio Nuvio con un proveedor: **AnimeAV1**.
 - `providers/animenuvio.js`: implementación del proveedor.
 
 ## Flujo
-TMDB ID recibido de Nuvio → TMDB external_ids para obtener IMDb → API AnimeAV1 antigua (`/resolve?imdb=...`) → slug → episodio → fuentes Voe y PlayerZilla/HLS-Zilla.
+TMDB ID recibido de Nuvio → TMDB external_ids para obtener IMDb → API AnimeAV1 antigua (`/resolve?imdb=...`) → slug → episodio → fuentes Voe y HLS-Zilla.
 
 No requiere actualizar `server.mjs` ni instalar dependencias npm.
 
@@ -23,3 +23,7 @@ El proveedor recorre `embeds.SUB` y `embeds.DUB` de forma independiente. Cuando 
 ## Headers
 
 Se conservan exactamente los headers de los extractores originales: `Referer`, `Sec-Fetch-Site`, `Sec-Fetch-Mode`, `Sec-Fetch-Dest` y el User-Agent de Chrome 120 en Windows. Para Voe, las peticiones al embed y a su redirección JS envían únicamente `User-Agent`; la URL HLS resultante conserva `Referer`, `Sec-Fetch-Site`, `Sec-Fetch-Mode`, `Sec-Fetch-Dest` y `User-Agent`, igual que el extractor original.
+
+
+## Presentación de fuentes
+El nombre mostrado es AnimeAV. HLS-Zilla muestra 1080p y Voe 720p; se conserva el salto de línea antes de la resolución y se omite el nombre del servidor en la etiqueta.

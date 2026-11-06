@@ -1,13 +1,13 @@
 {
   "name": "AnimeNuvio Repo",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "scrapers": [
     {
       "id": "animenuvio",
       "name": "AnimeAV1",
-      "description": "AnimeAV1 para películas y series. Fuentes Voe y PlayerZilla / HLS-Zilla.",
-      "version": "1.0.3",
-      "author": "AnimeNuvio",
+      "description": "AnimeAV1 para películas y series. Fuentes HLS-Zilla y Voe.",
+      "version": "1.0.4",
+      "author": "AnimeAV",
       "supportedTypes": [
         "movie",
         "tv"
