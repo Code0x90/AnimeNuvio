@@ -1,4 +1,4 @@
-# AnimeNuvio 1.0.5 — repositorio de plugins para Nuvio
+# AnimeNuvio 1.0.7 — repositorio de plugins para Nuvio
 
 Repositorio Nuvio con un proveedor: **AnimeAV1**.
 
@@ -23,3 +23,7 @@ El proveedor recorre `embeds.SUB` y `embeds.DUB` de forma independiente. Cuando 
 ## Headers
 
 Se conservan exactamente los headers de los extractores originales: `Referer`, `Sec-Fetch-Site`, `Sec-Fetch-Mode`, `Sec-Fetch-Dest` y el User-Agent de Chrome 120 en Windows. Para Voe, las peticiones al embed y a su redirección JS envían únicamente `User-Agent`; la URL HLS resultante conserva `Referer`, `Sec-Fetch-Site`, `Sec-Fetch-Mode`, `Sec-Fetch-Dest` y `User-Agent`, igual que el extractor original.
+
+
+## Etiquetas de fuentes
+La primera línea identifica la fuente: `📺 HLS` para PlayerZilla o `📺 Voe`. La resolución permanece en la segunda línea: 1080p para PlayerZilla y 720p para Voe.

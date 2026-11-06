@@ -313,7 +313,8 @@ function makeStream(source, resolved, mediaType) {
     name: PROVIDER_NAME,
     title: '',
     url: resolved.url,
-    quality: '\n' + quality + ' | WEB-DL | ' +
+    quality: '📺 ' + (provider === 'Voe' ? 'Voe' : 'HLS') + '\n' +
+      quality + ' | WEB-DL | ' +
       (mediaType === 'tv' ? 'Serie' : 'Película') + '\n' + languageLabel(source.dub),
     headers: resolved.headers || {},
     type: 'hls'
