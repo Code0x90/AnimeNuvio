@@ -131,10 +131,40 @@ function resolveServer(entry, dataArray) {
 function isSupportedSource(name) {
   var value = String(name || '').toLowerCase();
   return value.indexOf('voe') !== -1 ||
+    value === 'hls' || value.indexOf('hls ') !== -1 || value.indexOf(' hls') !== -1 ||
     value.indexOf('playerzilla') !== -1 ||
     value.indexOf('player zilla') !== -1 ||
     value.indexOf('hls-zilla') !== -1 ||
     value.indexOf('hls zilla') !== -1;
+}
+
+/* Fallback HTML parser retained from the original working AnimeAV1 provider. */
+function getEpisodeServersFromHtml(pageUrl) {
+  return requestText(pageUrl, { 'Referer': ANIMEAV1_BASE + '/' }).then(function (html) {
+    var metadataJSON = (html.match(/kit\.start\(app,\s*element,\s*\{[\s\S]*/) || [])[0] || html;
+    var patterns = [
+      { re: /embeds:\s?.*?SUB:\s?(\[[\s\S]*?\])/, dub: false },
+      { re: /downloads:\s?.*?SUB:\s?(\[[\s\S]*?\])/, dub: false },
+      { re: /embeds:\s?.*?DUB:\s?(\[[\s\S]*?\])/, dub: true },
+      { re: /downloads:\s?.*?DUB:\s?(\[[\s\S]*?\])/, dub: true }
+    ];
+    var servers = [];
+    patterns.forEach(function (pattern) {
+      var match = metadataJSON.match(pattern.re);
+      if (!match) return;
+      var raw = match[1];
+      var entries = raw.split(/},\s*\{/);
+      entries.forEach(function (entry) {
+        var name = (entry.match(/server:\s*"(.*?)"/) || [])[1];
+        var url = (entry.match(/url:\s*"(.*?)"/) || [])[1];
+        if (name && url && /^https?:\/\//i.test(url) && isSupportedSource(name)) {
+          servers.push({ name: name, url: url, dub: pattern.dub });
+        }
+      });
+    });
+    log('HTML fallback: ' + servers.length + ' fuentes compatibles');
+    return servers;
+  });
 }
 
 /* Reads AnimeAV1's SvelteKit data payload and returns only SUB/DUB Voe and Zilla. */
@@ -198,12 +228,18 @@ function getEpisodeServers(slug, episode) {
     });
 
     log('Fuentes compatibles: ' + servers.length + ' (Voe/PlayerZilla)');
-    return servers;
+    if (servers.length) return servers;
+    log('__data.json no identificó fuentes; probando HTML scraping');
+    return getEpisodeServersFromHtml(pageUrl);
+  }).catch(function (error) {
+    log('__data.json falló (' + error.message + '); probando HTML scraping');
+    return getEpisodeServersFromHtml(pageUrl);
   });
 }
 
 function extractPlayerZilla(playUrl) {
   var directUrl = String(playUrl || '').replace('/play/', '/m3u8/');
+  log('PlayerZilla HLS: ' + safeUrl(directUrl));
   if (directUrl === playUrl || !/^https?:\/\/player\.zilla-networks\.com\//i.test(directUrl)) {
     throw new Error('URL PlayerZilla no reconocida');
   }

@@ -1,17 +1,19 @@
-# AnimeNuvio — repositorio de plugins para Nuvio
+# AnimeNuvio 1.0.1
 
-Repositorio Nuvio con un proveedor: **AnimeAV1**.
+Proveedor de AnimeAV1 para Nuvio.
 
-## Contenido
-- `manifest.json`: registro del proveedor para Nuvio.
-- `providers/animenuvio.js`: implementación del proveedor.
+## Fuentes
+- Voe HLS
+- HLS de PlayerZilla / HLS-Zilla (AnimeAV1 suele etiquetar esta fuente simplemente como `HLS`).
 
 ## Flujo
-TMDB ID recibido de Nuvio → TMDB external_ids para obtener IMDb → API AnimeAV1 antigua (`/resolve?imdb=...`) → slug → episodio → fuentes Voe y PlayerZilla/HLS-Zilla.
-
-No requiere actualizar `server.mjs` ni instalar dependencias npm.
+TMDB ID -> TMDB external_ids (IMDb) -> API AnimeAV1 antigua (`/resolve?imdb=...`) -> episodio AnimeAV1 -> extracción Voe / PlayerZilla.
 
 ## Instalación
-Para instalarlo como repositorio remoto, publica la carpeta manteniendo esta estructura y agrega la URL RAW de `manifest.json` en Nuvio → Ajustes → Plugins.
+Aloja la carpeta del repositorio en un servidor estático y añade en Nuvio la URL RAW/pública del `manifest.json`.
 
-El ZIP sirve para revisar o alojar el repositorio; Nuvio normalmente instala repositorios mediante la URL del manifiesto, no importando el ZIP directamente.
+## Configuración
+Edita `providers/animenuvio.js` y coloca tu TMDB API Key v3 en `TMDB_API_KEY`.
+
+## Diagnóstico
+Los logs usan el prefijo `[AnimeNuvio]`. Si `__data.json` no encuentra fuentes, el proveedor intenta el scraping HTML de respaldo.
