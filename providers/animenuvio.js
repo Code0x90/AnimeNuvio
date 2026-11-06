@@ -130,7 +130,8 @@ function resolveServer(entry, dataArray) {
 
 function isSupportedSource(name) {
   var value = String(name || '').toLowerCase();
-  return value.indexOf('voe') !== -1 ||
+  return value === 'hls' ||
+    value.indexOf('voe') !== -1 ||
     value.indexOf('playerzilla') !== -1 ||
     value.indexOf('player zilla') !== -1 ||
     value.indexOf('hls-zilla') !== -1 ||
@@ -197,7 +198,17 @@ function getEpisodeServers(slug, episode) {
       return true;
     });
 
-    log('Fuentes compatibles: ' + servers.length + ' (Voe/PlayerZilla)');
+    /* Main source first (HLS-Zilla), then Voe; SUB before DUB within each source. */
+    servers.sort(function (a, b) {
+      var aVoe = /voe/i.test(a.name) ? 1 : 0;
+      var bVoe = /voe/i.test(b.name) ? 1 : 0;
+      if (aVoe !== bVoe) return aVoe - bVoe;
+      return (a.dub ? 1 : 0) - (b.dub ? 1 : 0);
+    });
+
+    log('Fuentes compatibles: ' + servers.length + ' (HLS-Zilla/Voe)');
+    log('Distribución: SUB=' + servers.filter(function (s) { return !s.dub; }).length +
+      ' | DUB=' + servers.filter(function (s) { return s.dub; }).length);
     return servers;
   });
 }
@@ -242,13 +253,19 @@ function decodeVoePayload(rawValue) {
 }
 
 function extractVoe(embedUrl) {
-  return requestText(embedUrl, { 'Referer': ANIMEAV1_BASE + '/' }).then(function (html) {
+  /* Keep the original AnimeAV1 Voe request headers unchanged: UA only. */
+  return fetch(embedUrl, { headers: { 'User-Agent': UA } }).then(function (response) {
+    if (!response.ok) throw new Error('HTTP ' + response.status + ' en Voe');
+    return response.text();
+  }).then(function (html) {
     var redirect = html.match(/window\.location\.href\s*=\s*['"]([^'"]+)['"]/);
-    if (redirect) {
-      log('Voe redirección JS detectada');
-      return requestText(redirect[1], { 'Referer': embedUrl });
-    }
-    return html;
+    if (!redirect) return html;
+    log('Voe redirección JS detectada');
+    /* The original extractor also sends only User-Agent on the JS redirect. */
+    return fetch(redirect[1], { headers: { 'User-Agent': UA } }).then(function (response) {
+      if (!response.ok) throw new Error('HTTP ' + response.status + ' en redirección Voe');
+      return response.text();
+    });
   }).then(function (html) {
     var script = html.match(/<script type="application\/json"[^>]*>([\s\S]*?)<\/script>/i);
     if (!script) throw new Error('Voe: no se encontró application/json');
@@ -269,12 +286,15 @@ function extractVoe(embedUrl) {
     }
 
     var origin;
-    try { origin = new URL(embedUrl).origin; } catch (_) { origin = embedUrl; }
+    try { origin = new URL(embedUrl).origin; } catch (_) { origin = null; }
+    /* Exact HLS headers from the original working AnimeAV1 extractor. */
     return {
       url: decoded.source,
       headers: {
-        'Referer': origin + '/',
-        'Origin': origin,
+        'Referer': origin ? origin + '/' : embedUrl,
+        'Sec-Fetch-Site': 'same-origin',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Dest': 'empty',
         'User-Agent': UA
       },
       type: 'hls'

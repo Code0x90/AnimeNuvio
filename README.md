@@ -1,4 +1,4 @@
-# AnimeNuvio 1.0.2 — repositorio de plugins para Nuvio
+# AnimeNuvio 1.0.3 — repositorio de plugins para Nuvio
 
 Repositorio Nuvio con un proveedor: **AnimeAV1**.
 
@@ -16,6 +16,10 @@ Para instalarlo como repositorio remoto, publica la carpeta manteniendo esta est
 
 El ZIP sirve para revisar o alojar el repositorio; Nuvio normalmente instala repositorios mediante la URL del manifiesto, no importando el ZIP directamente.
 
-## PlayerZilla
+## Variantes e idiomas
 
-Se usa exactamente el bloque de headers de `extractZillaHLS` del archivo de referencia: `Referer`, `Sec-Fetch-Site`, `Sec-Fetch-Mode`, `Sec-Fetch-Dest` y el User-Agent de Chrome 120 en Windows. No se añade `Origin`, porque no forma parte de los headers de referencia.
+El proveedor recorre `embeds.SUB` y `embeds.DUB` de forma independiente. Cuando existen ambas variantes, devuelve HLS-Zilla primero y Voe como alternativa, conservando la etiqueta de idioma de cada stream. Si solo existe SUB o DUB, devuelve únicamente esa variante.
+
+## Headers
+
+Se conservan exactamente los headers de los extractores originales: `Referer`, `Sec-Fetch-Site`, `Sec-Fetch-Mode`, `Sec-Fetch-Dest` y el User-Agent de Chrome 120 en Windows. Para Voe, las peticiones al embed y a su redirección JS envían únicamente `User-Agent`; la URL HLS resultante conserva `Referer`, `Sec-Fetch-Site`, `Sec-Fetch-Mode`, `Sec-Fetch-Dest` y `User-Agent`, igual que el extractor original.
