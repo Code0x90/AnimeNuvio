@@ -1,19 +1,21 @@
-# AnimeNuvio 1.0.1
+# AnimeNuvio 1.0.2 — repositorio de plugins para Nuvio
 
-Proveedor de AnimeAV1 para Nuvio.
+Repositorio Nuvio con un proveedor: **AnimeAV1**.
 
-## Fuentes
-- Voe HLS
-- HLS de PlayerZilla / HLS-Zilla (AnimeAV1 suele etiquetar esta fuente simplemente como `HLS`).
+## Contenido
+- `manifest.json`: registro del proveedor para Nuvio.
+- `providers/animenuvio.js`: implementación del proveedor.
 
 ## Flujo
-TMDB ID -> TMDB external_ids (IMDb) -> API AnimeAV1 antigua (`/resolve?imdb=...`) -> episodio AnimeAV1 -> extracción Voe / PlayerZilla.
+TMDB ID recibido de Nuvio → TMDB external_ids para obtener IMDb → API AnimeAV1 antigua (`/resolve?imdb=...`) → slug → episodio → fuentes Voe y PlayerZilla/HLS-Zilla.
+
+No requiere actualizar `server.mjs` ni instalar dependencias npm.
 
 ## Instalación
-Aloja la carpeta del repositorio en un servidor estático y añade en Nuvio la URL RAW/pública del `manifest.json`.
+Para instalarlo como repositorio remoto, publica la carpeta manteniendo esta estructura y agrega la URL RAW de `manifest.json` en Nuvio → Ajustes → Plugins.
 
-## Configuración
-Edita `providers/animenuvio.js` y coloca tu TMDB API Key v3 en `TMDB_API_KEY`.
+El ZIP sirve para revisar o alojar el repositorio; Nuvio normalmente instala repositorios mediante la URL del manifiesto, no importando el ZIP directamente.
 
-## Diagnóstico
-Los logs usan el prefijo `[AnimeNuvio]`. Si `__data.json` no encuentra fuentes, el proveedor intenta el scraping HTML de respaldo.
+## PlayerZilla
+
+Se usa exactamente el bloque de headers de `extractZillaHLS` del archivo de referencia: `Referer`, `Sec-Fetch-Site`, `Sec-Fetch-Mode`, `Sec-Fetch-Dest` y el User-Agent de Chrome 120 en Windows. No se añade `Origin`, porque no forma parte de los headers de referencia.
