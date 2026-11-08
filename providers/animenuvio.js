@@ -373,10 +373,24 @@ function getStreams(tmdbId, mediaType, season, episode) {
     log('IMDb: ' + imdbId);
     return resolveAnime(imdbId, type, seasonNumber);
   }).then(function (resolved) {
-    var targetEpisode = type === 'movie' ? 1 : episodeNumber;
-    return resolveEpisode(resolved.slug, targetEpisode, type).then(function (streams) {
-      if (streams.length || type !== 'movie') return streams;
-      log('Película sin fuentes en episodio 1; probando episodio 0.');
+    if (type === 'tv') {
+      /* Keep the series path unchanged: requested season/episode only. */
+      return resolveEpisode(resolved.slug, episodeNumber, type);
+    }
+
+    /* Movies only: try episode 1 first, then episode 0 on empty result or error. */
+    return resolveEpisode(resolved.slug, 1, type).then(function (streams) {
+      if (streams.length) return streams;
+      log('Película sin fuentes válidas en episodio 1; probando episodio 0.');
+      return null;
+    }, function (error) {
+      log('Falló la consulta de película en episodio 1: ' +
+        (error && error.message ? error.message : String(error)) +
+        '; probando episodio 0.');
+      return null;
+    }).then(function (streams) {
+      /* Only the first attempt is recovered here; episode 0 is never retried. */
+      if (streams !== null) return streams;
       return resolveEpisode(resolved.slug, 0, type);
     });
   }).then(function (streams) {
